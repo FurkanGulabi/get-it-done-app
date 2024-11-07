@@ -6,6 +6,7 @@ import ThemeProvider from "@/components/providers/theme-provider";
 import Header from "@/components/Header";
 import { SessionProvider } from "@/components/providers/session-provider";
 import { Toaster } from "@/components/ui/toaster";
+import ReactQueryProvider from "@/components/providers/react-query-provider";
 
 const font = Open_Sans({
   subsets: ["latin"],
@@ -26,13 +27,15 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn("min-h-screen antialiased", font.variable)}>
-        <ThemeProvider>
-          <SessionProvider>
-            <Header />
-            {children}
-          </SessionProvider>
-          <Toaster />
-        </ThemeProvider>
+        <ReactQueryProvider>
+          <ThemeProvider>
+            <SessionProvider>
+              <Header />
+              {children}
+              <Toaster />
+            </SessionProvider>
+          </ThemeProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );

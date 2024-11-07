@@ -33,10 +33,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SmartDatetimeInput } from "@/components/ui/smart-date-input";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AddTodo } from "@/actions/Todo/AddTodo";
 
 const AddTodoButton = () => {
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-
   const form = useForm<z.infer<typeof AddTodoSchema>>({
     resolver: zodResolver(AddTodoSchema),
     defaultValues: {
@@ -47,9 +49,17 @@ const AddTodoButton = () => {
       status: "ONGOING",
     },
   });
+  const newTodoMutation = useMutation({
+    mutationFn: (values: z.infer<typeof AddTodoSchema>) => AddTodo(values),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+      setOpen(false);
+      form.reset();
+    },
+  });
 
   const onSubmit = (values: z.infer<typeof AddTodoSchema>) => {
-    console.log(values);
+    newTodoMutation.mutate(values);
   };
 
   return (
@@ -101,6 +111,7 @@ const AddTodoButton = () => {
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
+                      required
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -110,7 +121,7 @@ const AddTodoButton = () => {
                       <SelectContent>
                         <SelectItem value="PENDING">Pending</SelectItem>
                         <SelectItem value="ONGOING">Ongoing</SelectItem>
-                        <SelectItem value="POSTPONDED">Postponded</SelectItem>
+                        <SelectItem value="POSTPONED">Postponed</SelectItem>
                         <SelectItem value="COMPLETED">Completed</SelectItem>
                       </SelectContent>
                     </Select>
@@ -127,6 +138,7 @@ const AddTodoButton = () => {
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
+                      required
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -164,7 +176,9 @@ const AddTodoButton = () => {
               )}
             />
             <DialogFooter>
-              <Button type="submit">Add Todo</Button>
+              <Button type="submit" disabled={newTodoMutation.isPending}>
+                {newTodoMutation.isPending ? "Adding Todo..." : "Add Todo"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

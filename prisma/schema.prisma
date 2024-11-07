@@ -32,7 +32,7 @@ model Todo {
   description String?
   isCompleted Boolean    @default(false)
   status      TodoStatus @default(PENDING)
-  Priority    Priority   @default(MEDIUM)
+  priority    Priority   @default(MEDIUM)
   endDate     DateTime
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)

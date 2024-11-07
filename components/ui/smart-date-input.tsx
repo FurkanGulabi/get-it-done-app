@@ -7,14 +7,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ActiveModifiers } from "react-day-picker";
 import { Calendar, CalendarProps } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Calendar as CalendarIcon, LucideTextCursorInput } from "lucide-react";
+import { Calendar as CalendarIcon } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { format } from "date-fns";
 
 /* -------------------------------------------------------------------------- */
 /*                               Inspired By:                                 */
@@ -74,8 +72,6 @@ const inputBase =
 
 // @source: https://www.perplexity.ai/search/in-javascript-how-RfI7fMtITxKr5c.V9Lv5KA#1
 // use this pattern to validate the transformed date string for the natural language input
-const naturalInputValidationPattern =
-  "^[A-Z][a-z]{2}sd{1,2},sd{4},sd{1,2}:d{2}s[AP]M$";
 
 const DEFAULT_SIZE = 96;
 
@@ -176,7 +172,7 @@ const TimePicker = () => {
 
       onValueChange(newVal);
     },
-    [value]
+    [value, onTimeChange, onValueChange]
   );
 
   const handleKeydown = React.useCallback(
@@ -413,7 +409,7 @@ const NaturalLanguageInput = React.forwardRef<
     }:${new Date().getMinutes()} ${hour >= 12 ? "PM" : "AM"}`;
     setInputValue(value ? formatDateTime(value) : "");
     onTimeChange(value ? Time : timeVal);
-  }, [value, Time]);
+  }, [value, Time, onTimeChange]);
 
   const handleParse = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -437,7 +433,7 @@ const NaturalLanguageInput = React.forwardRef<
         onTimeChange(`${hour}:${parsedDateTime.getMinutes()} ${PM_AM}`);
       }
     },
-    [value]
+    [onTimeChange, onValueChange]
   );
 
   const handleKeydown = React.useCallback(
@@ -465,7 +461,7 @@ const NaturalLanguageInput = React.forwardRef<
           break;
       }
     },
-    [value]
+    [onTimeChange, onValueChange]
   );
 
   return (
@@ -494,12 +490,7 @@ const DateTimeLocalInput = ({
   const { value, onValueChange, Time } = useSmartDateInput();
 
   const formateSelectedDate = React.useCallback(
-    (
-      date: Date | undefined,
-      selectedDate: Date,
-      m: ActiveModifiers,
-      e: React.MouseEvent
-    ) => {
+    (date: Date | undefined, selectedDate: Date) => {
       const parsedDateTime = parseDateTime(selectedDate);
 
       if (parsedDateTime) {
@@ -510,7 +501,7 @@ const DateTimeLocalInput = ({
         onValueChange(parsedDateTime);
       }
     },
-    [value, Time]
+    [Time, onValueChange]
   );
 
   return (
