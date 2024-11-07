@@ -7,7 +7,7 @@ import { auth } from "@/auth";
 const Header = async () => {
   const session = await auth();
   return (
-    <header className="w-full p-8 border-b backdrop-blur-md fixed">
+    <header className="w-full p-8 border-b backdrop-blur-md fixed z-10">
       <div className="mx-auto flex items-center justify-between w-3/4">
         <Link href="/">
           <h1 className="text-3xl font-bold">GetItDone</h1>
