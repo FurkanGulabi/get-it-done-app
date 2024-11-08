@@ -1,7 +1,7 @@
 "use client";
-import { AddTodoSchema } from "@/schemas/AddTodoSchema";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { EditTodoSchema } from "@/schemas/EditTodoSchema";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -13,7 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Edit } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -34,23 +34,30 @@ import {
 } from "@/components/ui/select";
 import { SmartDatetimeInput } from "@/components/ui/smart-date-input";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AddTodo } from "@/actions/Todo/AddTodo";
+import { TodoType } from "@/types/TodoType";
+import { updateEditTodo } from "@/actions/Todo/UpdateTodo";
 
-const AddTodoButton = () => {
+const EditTodoButton = ({ todo }: TodoType) => {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-  const form = useForm<z.infer<typeof AddTodoSchema>>({
-    resolver: zodResolver(AddTodoSchema),
+  const form = useForm<z.infer<typeof EditTodoSchema>>({
+    resolver: zodResolver(EditTodoSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      endDate: new Date(),
-      priority: "MEDIUM",
-      status: "ONGOING",
+      title: todo.title,
+      description: todo.description || "",
+      endDate: todo.endDate,
+      priority: todo.priority,
+      status: todo.status,
     },
   });
-  const newTodoMutation = useMutation({
-    mutationFn: (values: z.infer<typeof AddTodoSchema>) => AddTodo(values),
+  const editTodoMutation = useMutation({
+    mutationFn: ({
+      values,
+      todoId,
+    }: {
+      values: z.infer<typeof EditTodoSchema>;
+      todoId: string;
+    }) => updateEditTodo(values, todoId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["todos"] });
       setOpen(false);
@@ -58,21 +65,20 @@ const AddTodoButton = () => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof AddTodoSchema>) => {
-    newTodoMutation.mutate(values);
+  const onSubmit = (values: z.infer<typeof EditTodoSchema>) => {
+    editTodoMutation.mutate({ values, todoId: todo.id });
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen} modal={true}>
       <DialogTrigger asChild>
-        <Button>
-          <Plus className="mr-2" />
-          <span>Add Todo</span>
+        <Button variant={"outline"} className="rounded-full">
+          <Edit />
         </Button>
       </DialogTrigger>
       <DialogContent>
-        <DialogTitle>Add Todo</DialogTitle>
-        <DialogDescription>Add new todo</DialogDescription>
+        <DialogTitle>Edit Todo</DialogTitle>
+        <DialogDescription>Edit your todo</DialogDescription>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
@@ -85,7 +91,7 @@ const AddTodoButton = () => {
                     <Input
                       {...field}
                       placeholder="Title"
-                      disabled={newTodoMutation.isPending}
+                      disabled={editTodoMutation.isPending}
                     />
                   </FormControl>
                   <FormMessage />
@@ -102,7 +108,7 @@ const AddTodoButton = () => {
                     <Textarea
                       {...field}
                       placeholder="Description"
-                      disabled={newTodoMutation.isPending}
+                      disabled={editTodoMutation.isPending}
                     />
                   </FormControl>
                   <FormMessage />
@@ -120,7 +126,7 @@ const AddTodoButton = () => {
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                       required
-                      disabled={newTodoMutation.isPending}
+                      disabled={editTodoMutation.isPending}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -148,7 +154,7 @@ const AddTodoButton = () => {
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                       required
-                      disabled={newTodoMutation.isPending}
+                      disabled={editTodoMutation.isPending}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -177,7 +183,7 @@ const AddTodoButton = () => {
                       value={field.value}
                       onValueChange={field.onChange}
                       placeholder="e.g. Tomorrow morning 9am"
-                      disabled={newTodoMutation.isPending}
+                      disabled={editTodoMutation.isPending}
                     />
                   </FormControl>
                   <FormDescription>Please select the full time</FormDescription>
@@ -187,8 +193,8 @@ const AddTodoButton = () => {
               )}
             />
             <DialogFooter>
-              <Button type="submit" disabled={newTodoMutation.isPending}>
-                {newTodoMutation.isPending ? "Adding Todo..." : "Add Todo"}
+              <Button type="submit" disabled={editTodoMutation.isPending}>
+                {editTodoMutation.isPending ? "Editing..." : "Edit Todo"}
               </Button>
             </DialogFooter>
           </form>
@@ -198,4 +204,4 @@ const AddTodoButton = () => {
   );
 };
 
-export default AddTodoButton;
+export default EditTodoButton;

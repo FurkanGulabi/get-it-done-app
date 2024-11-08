@@ -1,12 +1,11 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { Edit } from "lucide-react";
+
 import React from "react";
 import DeleteTodoButton from "./DeleteTodoButton";
 import { TodoType } from "@/types/TodoType";
 import { CalculateRemainingTime } from "@/lib/CalculateRemainingTime";
 import TodoCheckbox from "./TodoCheckbox";
-import { toast } from "sonner";
+import EditTodoButton from "./EditTodoButton";
 
 const Todo = ({ todo }: TodoType) => {
   const { priority, status, title, description, isCompleted, endDate, id } =
@@ -79,17 +78,7 @@ const Todo = ({ todo }: TodoType) => {
         </p>
       </div>
       <div className="flex flex-row items-center gap-2">
-        <Button
-          variant={"outline"}
-          className="rounded-full"
-          onClick={() => {
-            console.log("invoked");
-
-            toast("Not implemented");
-          }}
-        >
-          <Edit />
-        </Button>
+        <EditTodoButton todo={todo} />
         <DeleteTodoButton id={id} />
       </div>
     </div>

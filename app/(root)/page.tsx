@@ -2,7 +2,6 @@ import { auth } from "@/auth";
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { SlEnergy } from "react-icons/sl";
 import { CiCircleCheck } from "react-icons/ci";
 import { FaStar } from "react-icons/fa";
 import {
@@ -14,6 +13,8 @@ import {
 
 import { BlurFade } from "@/components/magicUI/BlurFade";
 import Footer from "@/components/Footer";
+import HomeHeroButton from "@/components/HomeHeroButton";
+import { Suspense } from "react";
 
 const HomePage = async () => {
   const session = await auth();
@@ -40,20 +41,22 @@ const HomePage = async () => {
 
         {/* Call-to-Action button */}
         <BlurFade delay={0.8}>
-          <Button variant="default" asChild>
-            <Link
-              href={session ? "/dashboard" : "#"}
-              className="flex flex-row items-center gap-2"
-            >
-              {session ? (
+          {session && (
+            <Button variant="default" asChild>
+              <Link
+                href="/dashboard"
+                className="flex flex-row items-center gap-2"
+              >
                 <span>Go to Dashboard</span>
-              ) : (
-                <>
-                  <SlEnergy size={20} /> <span>Get Started for Free</span>
-                </>
-              )}
-            </Link>
-          </Button>
+              </Link>
+            </Button>
+          )}
+          {!session && (
+            <Suspense>
+              <HomeHeroButton />
+            </Suspense>
+          )}
+
           <BlurFade delay={0.8}>
             {!session && (
               <p className="text-sm text-foreground mt-4">Try free</p>
