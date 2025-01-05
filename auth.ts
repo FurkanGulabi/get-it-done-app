@@ -1,8 +1,10 @@
+import prisma from "@/lib/db";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 import NextAuth, { NextAuthConfig } from "next-auth";
 import Google from "next-auth/providers/google";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import prisma from "@/lib/db";
-import crypto from "crypto";
+import { v4 as uuidv4 } from "uuid";
+
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma) as NextAuthConfig["adapter"],
   providers: [Google],
@@ -17,10 +19,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     strategy: "database",
     maxAge: 30 * 24 * 60 * 60, // 30 days
     updateAge: 0,
-    generateSessionToken: () => {
-      const token = crypto.randomBytes(32).toString("hex");
-      return token;
-    },
+    generateSessionToken: () => uuidv4(),
   },
   callbacks: {
     async signIn() {
@@ -47,4 +46,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   // debug: process.env.NODE_ENV === "development",
   useSecureCookies: process.env.NODE_ENV === "production",
   secret: process.env.AUTH_SECRET,
+  trustHost: true,
 });
