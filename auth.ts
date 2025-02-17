@@ -2,24 +2,32 @@ import prisma from "@/lib/db";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import NextAuth, { NextAuthConfig } from "next-auth";
 import Google from "next-auth/providers/google";
-import { v4 as uuidv4 } from "uuid";
-
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma) as NextAuthConfig["adapter"],
-  providers: [Google],
+  providers: [
+    Google({
+      clientId:
+        process.env.NODE_ENV === "production"
+          ? process.env.AUTH_GOOGLE_ID_PROD
+          : process.env.AUTH_GOOGLE_ID_DEV,
+      clientSecret:
+        process.env.NODE_ENV === "production"
+          ? process.env.AUTH_GOOGLE_SECRET_PROD
+          : process.env.AUTH_GOOGLE_SECRET_DEV,
+    }),
+  ],
   pages: {
-    signIn: "/auth/",
-    signOut: "/auth/",
-    error: "/auth/",
-    verifyRequest: "/auth/",
+    signIn: "/dashboard",
+    signOut: "/",
+    error: "/",
+    verifyRequest: "/",
     newUser: "/dashboard",
   },
   session: {
     strategy: "database",
     maxAge: 30 * 24 * 60 * 60, // 30 days
     updateAge: 0,
-    generateSessionToken: () => uuidv4(),
   },
   callbacks: {
     async signIn() {
@@ -43,8 +51,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return session;
     },
   },
-  // debug: process.env.NODE_ENV === "development",
-  useSecureCookies: process.env.NODE_ENV === "production",
+  /*   debug: process.env.NODE_ENV === "development",
+   */ useSecureCookies: process.env.NODE_ENV === "production",
   secret: process.env.AUTH_SECRET,
   trustHost: true,
 });
