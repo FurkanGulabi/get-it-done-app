@@ -7,7 +7,8 @@ const PageInProgress = () => {
     <main className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b  p-4">
       <div className="text-center space-y-8">
         <motion.h1
-          className="text-4xl md:text-6xl font-bold "
+          style={{ fontSize: "2.25rem", fontWeight: "bold" }}
+          className="text-4xl md:text-6xl font-bold"
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -16,10 +17,16 @@ const PageInProgress = () => {
         </motion.h1>
 
         <motion.div
+          style={{
+            position: "relative",
+            width: "12rem",
+            height: "12rem",
+            margin: "0 auto",
+          }}
+          className="relative w-48 h-48 mx-auto"
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
-          className="relative w-48 h-48 mx-auto"
         >
           <HamsterWheel />
         </motion.div>

@@ -3,7 +3,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import NextAuth, { NextAuthConfig } from "next-auth";
 import Google from "next-auth/providers/google";
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
+const authConfig: NextAuthConfig = {
   adapter: PrismaAdapter(prisma) as NextAuthConfig["adapter"],
   providers: [
     Google({
@@ -15,6 +15,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         process.env.NODE_ENV === "production"
           ? process.env.AUTH_GOOGLE_SECRET_PROD
           : process.env.AUTH_GOOGLE_SECRET_DEV,
+      authorization: {
+        params: {
+          access_type: "offline",
+          response_type: "code",
+          scope: "openid email profile",
+        },
+      },
     }),
   ],
   pages: {
@@ -27,12 +34,38 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   session: {
     strategy: "database",
     maxAge: 30 * 24 * 60 * 60, // 30 days
-    updateAge: 0,
+    updateAge: 24 * 60 * 60, // 24 hours
+  },
+  cookies: {
+    sessionToken: {
+      name:
+        process.env.NODE_ENV === "production"
+          ? "__Secure-next-auth.session-token"
+          : "next-auth.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+    pkceCodeVerifier: {
+      name:
+        process.env.NODE_ENV === "production"
+          ? "__Secure-next-auth.pkce.code_verifier"
+          : "next-auth.pkce.code_verifier",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 900, // 15 minutes in seconds
+      },
+    },
   },
   callbacks: {
-    async signIn() {
-      const isAllowedToSignIn = true;
-      if (isAllowedToSignIn) {
+    async signIn({ account }) {
+      if (account?.provider === "google") {
         return true;
       }
       return false;
@@ -51,8 +84,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return session;
     },
   },
-  /*   debug: process.env.NODE_ENV === "development",
-   */ useSecureCookies: process.env.NODE_ENV === "production",
+  debug: process.env.NODE_ENV === "development",
+  useSecureCookies: process.env.NODE_ENV === "production",
   secret: process.env.AUTH_SECRET,
   trustHost: true,
-});
+};
+
+export const { handlers, signIn, signOut, auth } = NextAuth(authConfig);

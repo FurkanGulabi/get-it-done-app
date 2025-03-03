@@ -1,19 +1,21 @@
-import { PrismaClient } from "@prisma/client";
 import { Pool } from "@neondatabase/serverless";
 import { PrismaNeon } from "@prisma/adapter-neon";
+import { PrismaClient } from "@prisma/client";
 
-const prismaClientSingleton = () => {
-  const neon = new Pool({ connectionString: process.env.DATABASE_URL });
-  const adapter = new PrismaNeon(neon);
-  return new PrismaClient({ adapter });
+// This is needed when using Neon with Prisma
+const connectionString = process.env.DATABASE_URL;
+const pool = new Pool({ connectionString });
+
+// Create a singleton instance of PrismaClient
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
 };
 
-declare const globalThis: {
-  prismaGlobal: ReturnType<typeof prismaClientSingleton>;
-} & typeof global;
+// Using type assertion to bypass version compatibility issues between Prisma packages
+// This is a temporary workaround until the packages are properly aligned
+const adapter = new PrismaNeon(pool) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter });
 
-const prisma = globalThis.prismaGlobal ?? prismaClientSingleton();
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 export default prisma;
-
-if (process.env.NODE_ENV !== "production") globalThis.prismaGlobal = prisma;

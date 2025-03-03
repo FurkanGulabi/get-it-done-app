@@ -52,13 +52,16 @@ const TodoContainer = () => {
       let comparison = 0;
       switch (sortOption) {
         case "priority":
-          comparison = (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0);
+          comparison =
+            (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0);
           break;
         case "date":
-          comparison = new Date(a.endDate).getTime() - new Date(b.endDate).getTime();
+          comparison =
+            new Date(a.endDate).getTime() - new Date(b.endDate).getTime();
           break;
         case "status":
-          comparison = (statusOrder[b.status] || 0) - (statusOrder[a.status] || 0);
+          comparison =
+            (statusOrder[b.status] || 0) - (statusOrder[a.status] || 0);
           break;
         default:
           comparison = 0;
@@ -81,7 +84,10 @@ const TodoContainer = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="animate-pulse bg-card border-border rounded-lg p-4 space-y-4 border">
+            <div
+              key={i}
+              className="animate-pulse bg-card border-border rounded-lg p-4 space-y-4 border"
+            >
               <div className="flex gap-3">
                 <div className="h-5 w-5 rounded-full bg-muted"></div>
                 <div className="space-y-2 flex-1">
@@ -105,7 +111,19 @@ const TodoContainer = () => {
   }
 
   if (!Array.isArray(todos) || todos.length === 0) {
-    return <NoTodosError />;
+    return (
+      <motion.main
+        className="w-full space-y-4"
+        variants={container}
+        animate="visible"
+        initial="hidden"
+      >
+        <div className="flex items-center justify-between">
+          <AddTodoButton />
+        </div>
+        <NoTodosError />
+      </motion.main>
+    );
   }
 
   const sortedTodos = sortTodos(todos);
@@ -129,11 +147,7 @@ const TodoContainer = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {sortedTodos.map((todo) => (
-            <motion.div
-              key={todo.id}
-              variants={item}
-              layout
-            >
+            <motion.div key={todo.id} variants={item} layout>
               <Todo todo={todo} />
             </motion.div>
           ))}
