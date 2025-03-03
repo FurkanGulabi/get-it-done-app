@@ -1,4 +1,5 @@
 "use client";
+import { generateDescriptionFromTitle } from "@/actions/AI/generateText";
 import { AddTodo } from "@/actions/Todo/AddTodo";
 import { Button } from "@/components/ui/button";
 import {
@@ -78,18 +79,17 @@ const AddTodoButton = () => {
 
     try {
       setIsGenerating(true);
-      console.log("Generating");
-      toast.success("GEnerating")
+      const result = await generateDescriptionFromTitle(title);
 
-      //wait 2 sec dummy
-
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // TODO: Add your AI generation logic here
-      // const description = await generateDescription(title);
-      // form.setValue("description", description);
+      if (result.error) {
+        toast.error(result.error);
+      } else if (result.output) {
+        form.setValue("description", result.output);
+        toast.success("Description generated!");
+      }
     } catch (error) {
       console.error("Failed to generate description:", error);
+      toast.error("Failed to generate description");
     } finally {
       setIsGenerating(false);
     }
