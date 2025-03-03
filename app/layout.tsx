@@ -1,12 +1,12 @@
+import Header from "@/components/Header";
+import ReactQueryProvider from "@/components/providers/react-query-provider";
+import { SessionProvider } from "@/components/providers/session-provider";
+import ThemeProvider from "@/components/providers/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
+import { cn } from "@/lib/utils";
+import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
-import "@/styles/globals.css";
-import { cn } from "@/lib/utils";
-import ThemeProvider from "@/components/providers/theme-provider";
-import Header from "@/components/Header";
-import { SessionProvider } from "@/components/providers/session-provider";
-import { Toaster } from "@/components/ui/toaster";
-import ReactQueryProvider from "@/components/providers/react-query-provider";
 
 const font = Open_Sans({
   subsets: ["latin"],

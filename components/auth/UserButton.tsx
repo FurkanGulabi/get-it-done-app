@@ -1,9 +1,12 @@
 "use client";
-import React, { useState } from "react";
-import { Button } from "../ui/button";
-import { FcGoogle } from "react-icons/fc";
 import { signIn, signOut } from "@/actions/auth/Auth";
+import { LogOut } from "lucide-react";
+import Link from "next/link";
+import React, { useState } from "react";
+import { FcGoogle } from "react-icons/fc";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Button } from "../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,9 +16,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import Link from "next/link";
-import { LogOut } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
 
 interface UserButtonProps {
