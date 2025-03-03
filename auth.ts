@@ -7,14 +7,12 @@ const authConfig: NextAuthConfig = {
   adapter: PrismaAdapter(prisma) as NextAuthConfig["adapter"],
   providers: [
     Google({
-      clientId:
-        process.env.NODE_ENV === "production"
-          ? process.env.AUTH_GOOGLE_ID_PROD
-          : process.env.AUTH_GOOGLE_ID_DEV,
-      clientSecret:
-        process.env.NODE_ENV === "production"
-          ? process.env.AUTH_GOOGLE_SECRET_PROD
-          : process.env.AUTH_GOOGLE_SECRET_DEV,
+      clientId: process.env.NODE_ENV === "production"
+        ? process.env.AUTH_GOOGLE_ID_PROD
+        : process.env.AUTH_GOOGLE_ID_DEV,
+      clientSecret: process.env.NODE_ENV === "production"
+        ? process.env.AUTH_GOOGLE_SECRET_PROD
+        : process.env.AUTH_GOOGLE_SECRET_DEV,
       authorization: {
         params: {
           access_type: "offline",
@@ -38,28 +36,14 @@ const authConfig: NextAuthConfig = {
   },
   cookies: {
     sessionToken: {
-      name:
-        process.env.NODE_ENV === "production"
-          ? "__Secure-next-auth.session-token"
-          : "next-auth.session-token",
+      name: process.env.NODE_ENV === "production"
+        ? "__Secure-next-auth.session-token"
+        : "next-auth.session-token",
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
         secure: process.env.NODE_ENV === "production",
-      },
-    },
-    pkceCodeVerifier: {
-      name:
-        process.env.NODE_ENV === "production"
-          ? "__Secure-next-auth.pkce.code_verifier"
-          : "next-auth.pkce.code_verifier",
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 900, // 15 minutes in seconds
       },
     },
   },
@@ -80,11 +64,10 @@ const authConfig: NextAuthConfig = {
       session.user.image = user.image;
       session.user.createdAt = user.createdAt;
       session.user.updatedAt = user.updatedAt;
-
       return session;
     },
   },
-  debug: process.env.NODE_ENV === "development",
+  debug: process.env.NODE_ENV !== "production",
   useSecureCookies: process.env.NODE_ENV === "production",
   secret: process.env.AUTH_SECRET,
   trustHost: true,
