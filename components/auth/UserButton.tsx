@@ -19,11 +19,10 @@ import {
 import { Skeleton } from "../ui/skeleton";
 
 interface UserButtonProps {
-  isLoggedIn: boolean;
   image: string;
 }
 
-const UserButton = ({ isLoggedIn, image }: UserButtonProps) => {
+const UserButton = ({ image }: UserButtonProps) => {
   const [loading, setLoading] = useState(false);
 
   const handleSignIn = async () => {
@@ -51,18 +50,7 @@ const UserButton = ({ isLoggedIn, image }: UserButtonProps) => {
     }
   };
 
-  if (!isLoggedIn) {
-    return (
-      <Button
-        variant={"outline"}
-        className="flex flex-row justify-between py-5"
-        onClick={handleSignIn}
-      >
-        <FcGoogle />
-        <span>Sign in with Google</span>
-      </Button>
-    );
-  }
+
 
   return (
     <DropdownMenu>

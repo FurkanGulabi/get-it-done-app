@@ -1,8 +1,10 @@
-import { auth } from "@/auth";
+import { auth, signIn } from "@/auth";
 import Image from "next/image";
 import Link from "next/link";
 import React, { Suspense } from "react";
+import { FcGoogle } from "react-icons/fc";
 import UserButton from "./auth/UserButton";
+import { Button } from "./ui/button";
 import { Skeleton } from "./ui/skeleton";
 
 const Header = async () => {
@@ -17,11 +19,30 @@ const Header = async () => {
           <Image src="/logo.svg" width={40} height={40} alt="logo" />
           <h1 className="text-3xl font-bold">GetItDone</h1>
         </Link>
-        <Suspense
-          fallback={<Skeleton className="rounded-full w-[40px] h-[40px]" />}
-        >
-          <UserButton isLoggedIn={!!session} image={session?.user.image} />
-        </Suspense>
+
+        {session && session.user ? (
+          <Suspense
+            fallback={<Skeleton className="rounded-full w-[40px] h-[40px]" />}
+          >
+            <UserButton image={session?.user.image} />
+          </Suspense>
+        ) : (
+          <form
+            action={async () => {
+              "use server"
+              await signIn("google")
+            }}
+          >
+            <Button
+              type="submit"
+              variant={"outline"}
+              className="flex flex-row justify-between py-5"
+            >
+              <FcGoogle />
+              <span>Sign in with Google</span>
+            </Button>
+          </form>
+        )}
       </div>
     </header>
   );
