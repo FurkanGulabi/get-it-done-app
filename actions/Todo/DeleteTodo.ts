@@ -29,4 +29,24 @@ async function deleteTodo(todoId: string) {
   return { success: true };
 }
 
-export { deleteTodo };
+async function deleteAllTodos() {
+  const session = await auth();
+  if (!session) {
+    return { error: "Unothorized" };
+  }
+
+  const t = await prisma.todo.deleteMany({
+    where: {
+      userId: session.user.id,
+    },
+  });
+  console.log(t);
+
+  if (t.count === 0) {
+    return { success: true };
+  }
+
+  return { error: "Error deleting todo" };
+}
+
+export { deleteAllTodos, deleteTodo };

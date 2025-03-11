@@ -7,7 +7,7 @@ export default function NoTodosError() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex flex-col w-full items-center justify-center p-8 bg-card border-border rounded-lg shadow-sm border"
+      className="flex flex-col w-full items-center justify-center p-8 bg-card border-border rounded-lg shadow-sm "
     >
       <div className="flex items-center justify-center w-16 h-16 mb-4 rounded-full bg-primary/10">
         <AlertCircle className="w-8 h-8 text-primary" />

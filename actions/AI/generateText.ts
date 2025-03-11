@@ -1,6 +1,6 @@
 "use server";
 import { auth } from "@/auth";
-import { generateDescriptionFromTitleAI } from "@/lib/AI";
+import { generateDescriptionFromTitleOrImproveWithDescriptionAI } from "@/lib/AI";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 
@@ -17,7 +17,10 @@ const ratelimit = new Ratelimit({
   prefix: "@upstash/ratelimit",
 });
 
-async function generateDescriptionFromTitle(title: string) {
+async function generateDescriptionFromTitleOrImproveWithDescription(
+  title: string,
+  description: string | undefined
+) {
   try {
     const session = await auth();
     if (!session) return { error: "Unauthorized" };
@@ -36,7 +39,10 @@ async function generateDescriptionFromTitle(title: string) {
       };
     }
 
-    const result = await generateDescriptionFromTitleAI(title);
+    const result = await generateDescriptionFromTitleOrImproveWithDescriptionAI(
+      title,
+      description
+    );
     return {
       output: result,
       remaining: remaining - 1, // Subtract 1 because the current request counts
@@ -47,4 +53,4 @@ async function generateDescriptionFromTitle(title: string) {
   }
 }
 
-export { generateDescriptionFromTitle };
+export { generateDescriptionFromTitleOrImproveWithDescription };

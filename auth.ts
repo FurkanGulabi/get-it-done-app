@@ -7,12 +7,14 @@ const authConfig: NextAuthConfig = {
   adapter: PrismaAdapter(prisma) as NextAuthConfig["adapter"],
   providers: [
     Google({
-      clientId: process.env.NODE_ENV === "production"
-        ? process.env.AUTH_GOOGLE_ID_PROD
-        : process.env.AUTH_GOOGLE_ID_DEV,
-      clientSecret: process.env.NODE_ENV === "production"
-        ? process.env.AUTH_GOOGLE_SECRET_PROD
-        : process.env.AUTH_GOOGLE_SECRET_DEV,
+      clientId:
+        process.env.NODE_ENV === "production"
+          ? process.env.AUTH_GOOGLE_ID_PROD
+          : process.env.AUTH_GOOGLE_ID_DEV,
+      clientSecret:
+        process.env.NODE_ENV === "production"
+          ? process.env.AUTH_GOOGLE_SECRET_PROD
+          : process.env.AUTH_GOOGLE_SECRET_DEV,
       authorization: {
         params: {
           access_type: "offline",
@@ -36,9 +38,10 @@ const authConfig: NextAuthConfig = {
   },
   cookies: {
     sessionToken: {
-      name: process.env.NODE_ENV === "production"
-        ? "__Secure-next-auth.session-token"
-        : "next-auth.session-token",
+      name:
+        process.env.NODE_ENV === "production"
+          ? "__Secure-next-auth.session-token"
+          : "next-auth.session-token",
       options: {
         httpOnly: true,
         sameSite: "lax",
@@ -48,8 +51,15 @@ const authConfig: NextAuthConfig = {
     },
   },
   callbacks: {
-    async signIn({ account }) {
+    async signIn({ account, user }) {
       if (account?.provider === "google") {
+        prisma.user.update({
+          where: { id: user.id },
+          data: {
+            emailVerified: user.createdAt,
+          },
+        });
+
         return true;
       }
       return false;
@@ -67,7 +77,7 @@ const authConfig: NextAuthConfig = {
       return session;
     },
   },
-  debug: process.env.NODE_ENV !== "production",
+  debug: false,
   useSecureCookies: process.env.NODE_ENV === "production",
   secret: process.env.AUTH_SECRET,
   trustHost: true,

@@ -1,5 +1,5 @@
 "use client";
-import { generateDescriptionFromTitle } from "@/actions/AI/generateText";
+import { generateDescriptionFromTitleOrImproveWithDescription } from "@/actions/AI/generateText";
 import { AddTodo } from "@/actions/Todo/AddTodo";
 import { Button } from "@/components/ui/button";
 import {
@@ -69,6 +69,7 @@ const AddTodoButton = () => {
 
   const handleGenerateDescription = async () => {
     const title = form.getValues("title");
+    const description = form.getValues("description");
     if (!title) {
       form.setError("title", {
         type: "manual",
@@ -79,7 +80,7 @@ const AddTodoButton = () => {
 
     try {
       setIsGenerating(true);
-      const result = await generateDescriptionFromTitle(title);
+      const result = await generateDescriptionFromTitleOrImproveWithDescription(title, description);
 
       if (result.error) {
         toast.error(result.error);

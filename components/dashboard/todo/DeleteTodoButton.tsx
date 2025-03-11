@@ -37,7 +37,6 @@ const DeleteTodoButton = ({ id }: DeleteButtonProps) => {
   });
 
   const handleDelete = async () => {
-    console.log("handling");
 
     deleteTodoMutation.mutate(id);
   };

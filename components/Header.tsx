@@ -9,6 +9,7 @@ import { Skeleton } from "./ui/skeleton";
 
 const Header = async () => {
   const session = await auth();
+
   return (
     <header className="w-full p-8 border-b backdrop-blur-md fixed z-10">
       <div className="mx-auto flex items-center justify-between w-3/4">
@@ -24,7 +25,7 @@ const Header = async () => {
           <Suspense
             fallback={<Skeleton className="rounded-full w-[40px] h-[40px]" />}
           >
-            <UserButton image={session?.user.image} />
+            <UserButton image={session?.user.image} session={session} />
           </Suspense>
         ) : (
           <form

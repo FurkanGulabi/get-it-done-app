@@ -1,9 +1,11 @@
+// UserButton.tsx
 "use client";
-import { signIn, signOut } from "@/actions/auth/Auth";
-import { LogOut } from "lucide-react";
+import { signOut } from "@/actions/auth/Auth";
+import { Loader2, LogOut } from "lucide-react";
+import { Session } from "next-auth";
 import Link from "next/link";
-import React, { useState } from "react";
-import { FcGoogle } from "react-icons/fc";
+import { useRouter } from "next/navigation";
+import React, { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
@@ -17,71 +19,73 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Skeleton } from "../ui/skeleton";
+import Options from "./Options";
 
 interface UserButtonProps {
   image: string;
+  session: Session;
 }
 
-const UserButton = ({ image }: UserButtonProps) => {
-  const [loading, setLoading] = useState(false);
+const UserButton = ({ image, session }: UserButtonProps) => {
+  const [isPending, startTransition] = useTransition();
+  const [open, setOpen] = useState<boolean>(false);
+  const router = useRouter();
 
-  const handleSignIn = async () => {
-    setLoading(true);
-    const data = await signIn();
-    if (data?.error) {
-      toast.error(data.error);
-    } else if (data?.success) {
-      toast.success(data.success);
-    } else {
-      toast.error("Somewthing went wrong, please try again");
-    }
-    setLoading(false);
+  const handleSignOut = () => {
+    startTransition(async () => {
+      try {
+        const data = await signOut();
+        if (data?.error) {
+          toast.error(data.error);
+        } else if (data?.success) {
+          toast.success(data.success);
+          router.refresh(); // Refresh the page or redirect if needed
+        } else {
+          toast.error("Something went wrong, please try again");
+        }
+      } catch (error) {
+        toast.error("An unexpected error occurred");
+        console.error("Sign out error:", error);
+      }
+    });
   };
-
-  const handleSignOutSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const data = await signOut();
-    if (data?.error) {
-      toast.error(data.error);
-    } else if (data?.success) {
-      toast.success(data.success);
-    } else {
-      toast.error("Something went wrong, please try again");
-    }
-  };
-
-
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>
-        <Avatar>
-          <AvatarImage src={image} alt="User Image" />
-          <AvatarFallback>
-            <Skeleton className="rounded-full w-[40px] h-[40px]" />
-          </AvatarFallback>
-        </Avatar>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="p-0 h-auto !bg-transparent hover:!bg-transparent">
+          <Avatar>
+            <AvatarImage src={image} alt="User Image" />
+            <AvatarFallback>
+              <Skeleton className="rounded-full w-[40px] h-[40px]" />
+            </AvatarFallback>
+          </Avatar>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-40">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <Link href="/dashboard">
-            <DropdownMenuItem>Dashboard</DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer">
+              Dashboard
+            </DropdownMenuItem>
           </Link>
+          <Options open={open} setOpen={setOpen} session={session} />
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <form onSubmit={handleSignOutSubmit}>
-            <Button
-              type="submit"
-              className="w-full text-foreground text-left hover:bg-destructive hover:text-destructive-foreground transition-all h-8 bg-transparent flex justify-start gap-2 p-2 "
-              disabled={loading}
-            >
-              <LogOut />
-              <span>Sign out</span>
-            </Button>
-          </form>
+          <DropdownMenuItem
+            onSelect={handleSignOut}
+            className="cursor-pointer text-foreground hover:bg-destructive hover:text-destructive-foreground transition-all"
+          >
+            {isPending ? (
+              <Loader2 className="animate-spin mr-2" size={16} />
+            ) : (
+              <LogOut className="mr-2" size={16} />
+            )}
+            <span>Sign out</span>
+          </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
