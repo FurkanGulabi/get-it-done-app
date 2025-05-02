@@ -7,7 +7,7 @@ FROM base AS deps
 WORKDIR /app
 
 # Copy package files
-COPY package.json bun.lockb* ./
+COPY package.json bun.lockb* ./ 
 
 # Install dependencies with Bun
 RUN bun install --frozen-lockfile
@@ -17,7 +17,8 @@ RUN apk add --no-cache \
     fontconfig \
     poppler-utils \
     ffmpeg \
-    vips-dev
+    vips-dev \
+    curl # Add curl for healthcheck
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -26,7 +27,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Generate Prisma client
-RUN bunx prisma generate
+RUN bunx prisma generate # or RUN npx prisma generate
 
 # Disable Next.js telemetry
 ENV NEXT_TELEMETRY_DISABLED 1
@@ -52,15 +53,11 @@ RUN adduser --system --uid 1001 nextjs
 
 # Copy necessary files
 COPY --from=builder --chown=nextjs:bunjs /app/public ./public
-COPY --from=builder --chown=nextjs:bunjs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:bunjs /app/.next/standalone ./ 
 COPY --from=builder --chown=nextjs:bunjs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:bunjs /app/node_modules/sharp ./node_modules/sharp
 COPY --from=builder --chown=nextjs:bunjs /app/public/locales ./public/locales 2>/dev/null || :
 COPY --from=builder --chown=nextjs:bunjs /app/.env.production ./.env.production 2>/dev/null || :
-
-# Copy entrypoint
-COPY entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
 
 # Use non-root user
 USER nextjs
@@ -71,7 +68,10 @@ ENV PORT 3000
 
 # Healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
+  CMD curl --fail http://localhost:3000/ || exit 1
 
-# Run app with entrypoint
-ENTRYPOINT ["/app/entrypoint.sh"]
+# Run Prisma migration and start the app
+CMD echo "📦 Prisma migration başlatılıyor..." && \
+    bunx prisma migrate deploy && \
+    echo "🚀 Uygulama başlatılıyor..." && \
+    exec bun run server.js
