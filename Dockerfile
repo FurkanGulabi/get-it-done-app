@@ -1,7 +1,7 @@
 # syntax=docker.io/docker/dockerfile:1
 
 # Base image
-FROM node:18-alpine AS base
+FROM node:22-alpine AS base
 
 # Common dependencies for all stages
 RUN apk add --no-cache libc6-compat
