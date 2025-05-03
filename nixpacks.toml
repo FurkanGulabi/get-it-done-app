@@ -4,5 +4,6 @@ nixPkgs = ["nodejs", "prisma"]
 [phases.build]
 cmds = [
   "npx prisma generate",
-  "npx prisma db push"
+  "npx prisma db push",
+  "npm run build"
 ]
